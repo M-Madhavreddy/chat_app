@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:chat_app/main.dart';
 
 class AuthForm extends StatefulWidget {
-  const AuthForm({Key? key}) : super(key: key);
+  AuthForm(this.submitForm);
+
+  final void Function(
+      String email, String password, String userName, bool isLogin) submitForm;
 
   @override
   State<AuthForm> createState() => _AuthFormState();
@@ -10,6 +12,28 @@ class AuthForm extends StatefulWidget {
 
 class _AuthFormState extends State<AuthForm> {
   @override
+  final _formkey = GlobalKey<FormState>();
+  var _islogin = true;
+  var _passwordVisible;
+  String _userEmail = '';
+  String _password = '';
+  String _userName = '';
+
+  void initState() {
+    _passwordVisible = false;
+  }
+
+  void _trySubmit() {
+    final _isvalid = _formkey.currentState!.validate();
+    FocusScope.of(context).unfocus();
+
+    if (_isvalid) {
+      _formkey.currentState!.save();
+
+      widget.submitForm(_userEmail, _password, _userName, _islogin);
+    }
+  }
+
   Widget build(BuildContext context) {
     return Center(
       child: Card(
@@ -17,6 +41,7 @@ class _AuthFormState extends State<AuthForm> {
         child: SingleChildScrollView(
           padding: EdgeInsets.all(16),
           child: Form(
+            key: _formkey,
             child: Column(
               // cloumn within single child scroll view can take as much as space required leading to infinity height
               //size helps in just taking as min space req
@@ -24,31 +49,81 @@ class _AuthFormState extends State<AuthForm> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 TextFormField(
+                  validator: (value) {
+                    if (value!.isEmpty || !value.contains('@')) {
+                      return 'please enter a valid E-mail';
+                    }
+                    return null;
+                  },
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(labelText: 'E-Mail ID'),
+                  onSaved: (value) {
+                    _userEmail = value!;
+                  },
                 ),
                 TextFormField(
+                  validator: (value) {
+                    if (value!.isEmpty || value!.length < 7) {
+                      return 'please enter a valid password with atleast 7 characters';
+                    }
+                    return null;
+                  },
                   keyboardType: TextInputType.text,
-                  obscureText: true,
+                  obscureText: !_passwordVisible,
                   decoration: InputDecoration(
                     labelText: 'Password',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _passwordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        // Update the state i.e. toogle the state of passwordVisible variable
+                        setState(() {
+                          _passwordVisible = !_passwordVisible;
+                        });
+                      },
+                    ),
                   ),
+                  onSaved: (value) {
+                    _password = value!;
+                  },
                 ),
-                TextFormField(
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(labelText: 'User ID'),
-                ),
-                SizedBox(
+                if (!_islogin)
+                  TextFormField(
+                    validator: (value) {
+                      if (value!.isEmpty || value!.length < 5) {
+                        return 'please enter a valid userName with atleast 5 characters';
+                      }
+                      return null;
+                    },
+                    keyboardType: TextInputType.text,
+                    decoration: const InputDecoration(labelText: 'User_Name'),
+                    onSaved: (value) {
+                      _userName = value!;
+                    },
+                  ),
+                const SizedBox(
                   height: 12,
                 ),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    child: Text('Login'),
-                    onPressed: () {},
+                    onPressed: _trySubmit,
+                    child: Text(_islogin ? 'Login' : 'SignUp'),
+                  ),
                 ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _islogin = !_islogin;
+                    });
+                  },
+                  child: Text(
+                      _islogin ? 'Create New Account' : 'Already Registered?'),
                 ),
-                TextButton(onPressed: () {}, child: Text('Create New Account')),
               ],
             ),
           ),

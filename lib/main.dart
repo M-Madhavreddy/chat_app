@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             backgroundColor: Colors.pink,
+            shadowColor: Colors.deepPurple,
             elevation: 6.0,
           )
         )
