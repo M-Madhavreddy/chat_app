@@ -8,7 +8,6 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // future builder is imp for intialize app method
-    Firebase.initializeApp();
     return Scaffold(
         appBar: AppBar(
           title: Text('UserName'),
