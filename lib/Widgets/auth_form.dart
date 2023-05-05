@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AuthForm extends StatefulWidget {
-  AuthForm(this.submitForm);
+  AuthForm(this.submitForm, this.isLoading);
+
+  final bool isLoading;
 
   final void Function(
       String email, String password, String userName, bool isLogin) submitForm;
@@ -36,6 +39,7 @@ class _AuthFormState extends State<AuthForm> {
   }
 
   Widget build(BuildContext context) {
+    // bool loadingStatus = widget.isLoading;
     return Center(
       child: Card(
         margin: EdgeInsets.all(20),
@@ -109,14 +113,17 @@ class _AuthFormState extends State<AuthForm> {
                 const SizedBox(
                   height: 12,
                 ),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _trySubmit,
-                    child: Text(_islogin ? 'Login' : 'SignUp'),
+                if (widget.isLoading)
+                  CircularProgressIndicator()
+                else
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _trySubmit,
+                      child: Text(_islogin ? 'Login' : 'SignUp'),
+                    ),
                   ),
-                ),
-                TextButton(
+                  TextButton(
                   onPressed: () {
                     setState(() {
                       _islogin = !_islogin;
